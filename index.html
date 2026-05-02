@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Produtos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:#ad8a49;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #ad8a49;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #ad8a49;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: rgb(173, 138, 73);
+            box-shadow: 0 0 5px rgba(173, 138, 73, 0.3);
+        }
+
+        .row-number {
+            text-align: center;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .total-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 300px;
+            border-left: 4px solid #ad8a49;
+        }
+
+        .total-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .total-value {
+            font-size: 32px;
+            color: #ad8a49;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .buttons-section {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-print {
+            background: #ad8a49;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: rgb(95, 67, 14);
+            box-shadow: 0 5px 15px rgba(95, 67, 14, 0.4);
+        }
+
+        .btn-clear {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-delete {
+            width: 100%;
+            background: #ff5c5c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background: #e04b4b;
+        }
+
+        .delete-cell {
+            text-align: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .buttons-section {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .lista-produtos{
+            padding-top: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Natural Chá</h1>
+            <p>Preencha a descrição e o valor dos produtos. Pressione TAB na última coluna para adicionar uma nova linha.</p>
+            <div class="lista-produtos">
+                <div class="itens-produtos">Produtos:</div>
+                <div class="itens-produtos">1 - À Granel</div>
+                <div class="itens-produtos">2 - Embalagens</div>
+                <div class="itens-produtos">3 - Chocolate</div>
+                <div class="itens-produtos">4 - Chantilly</div>
+                <div class="itens-produtos">5 - Diversos</div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="table-container">
+                <table id="productTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 4%;">#</th>
+                            <th style="width: 10%;">Produto</th>
+                            <th style="width: 35%;">Descrição</th>
+                            <th style="width: 10%;">Qtd.</th>
+                            <th style="width: 15%;">Unitário (R$)</th>
+                            <th style="width: 20%;">Total (R$)</th>
+                            <th style="width: 5%;">Excluir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="total-section">
+            <div class="total-box">
+                <div class="total-label">TOTAL:</div>
+                <div class="total-value" id="totalValue">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="buttons-section">
+            <button class="btn-clear" onclick="clearForm()">Limpar Formulário</button>
+            <button class="btn-print" onclick="printTable()">🖨️ Imprimir</button>
+        </div>
+    </div>
+
+    <script>
+        // Inicializa com uma linha vazia
+        window.addEventListener('load', function() {
+            addProductRow();
+        });
+
+        function addProductRow() {
+            const tbody = document.getElementById('tableBody');
+            const rowNumber = tbody.rows.length + 1;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="row-number">${rowNumber}</td>
+                <td>
+                    <input type="number" class="produto" placeholder="0" id="produto" />
+                </td>
+                <td>
+                    <input type="text" class="descricao" placeholder="Descrição" id="descricao" />
+                </td>
+                <td>
+                    <input type="number" class="quantidade" placeholder="0,00" min="0" step="0.01" value="1" id="quantidade" />
+                </td>
+                <td>
+                    <input type="number" class="unitario" placeholder="0,00" min="0" step="0.01" id="unitario"  />
+                </td>
+                <td>
+                    <input type="number" class="total" placeholder="0,00" min="0" step="0.01" disabled  id="total" />
+                </td>
+                <td class="delete-cell">
+                    <button type="button" class="btn-delete" onclick="removeProductRow(this)">🗑️</button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+
+            const valueInput = row.querySelector('.unitario');
+            valueInput.addEventListener('keydown', function(e) {
+                if ((e.key === 'Tab' || e.key === 'Enter' )&& !e.shiftKey) {
+                    e.preventDefault();
+                    row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value) * parseFloat(row.querySelector('.quantidade').value);
+
+                    calculateTotal()
+
+                    if (e.key === 'Tab') {
+                        addProductRow();
+                        const newRow = tbody.rows[tbody.rows.length - 1];
+                        newRow.querySelector('.produto').focus();
+                    } else {
+                        printTable()
+                    }
+                }
+            });
+
+            row.querySelector('.produto').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    printTable()
+                }
+            });
+            row.querySelector('.descricao').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    printTable()
+                }
+            });
+            row.querySelector('.quantidade').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    printTable()
+                }
+            });
+
+            const produto = row.querySelector('.produto');
+            produto.addEventListener('keydown', function(e) {
+                if (e.key === '1' && !e.shiftKey) {
+                    row.querySelector('.descricao').value = "À Granel";
+                } else if (e.key === '2' && !e.shiftKey) {
+                    row.querySelector('.descricao').value = "Embalagens";
+                } else if (e.key === '3' && !e.shiftKey) {
+                    row.querySelector('.descricao').value = "Chocolate";
+                } else if (e.key === '4' && !e.shiftKey) {
+                    row.querySelector('.descricao').value = "Chantilly";
+                } else if (e.key === '5' && !e.shiftKey) {
+                    row.querySelector('.descricao').value = "Diversos";
+                }
+            });
+
+            valueInput.addEventListener('input', calculateTotal);
+        }
+
+        function calculateTotal() {
+            const inputs = document.querySelectorAll('.total');
+            let total = 0;
+
+            inputs.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            });
+
+            const totalElement = document.getElementById('totalValue');
+            totalElement.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+        }
+
+        function removeProductRow(button) {
+            const row = button.closest('tr');
+            const tbody = document.getElementById('tableBody');
+            if (!row || !tbody) return;
+
+            row.remove();
+            updateRowNumbers();
+            calculateTotal();
+
+            if (tbody.rows.length === 0) {
+                addProductRow();
+            }
+        }
+
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.row-number').textContent = index + 1;
+            });
+        }
+
+        function clearForm() {
+            if (confirm('Tem certeza que deseja limpar o formulário?')) {
+                document.getElementById('tableBody').innerHTML = '';
+                document.getElementById('totalValue').textContent = 'R$ 0,00';
+                addProductRow();
+            }
+        }
+
+        function printTable() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const products = [];
+            let total = 0;
+
+            rows.forEach((row, index) => {
+                const description = row.querySelector('.descricao').value.trim();
+                const value = parseFloat(row.querySelector('.total').value) || 0;
+
+                if (description || value > 0) {
+                    products.push({
+                        number: index + 1,
+                        description: description,
+                        value: value
+                    });
+                    total += value;
+                }
+            });
+
+            if (products.length === 0) {
+                alert('Nenhum produto para imprimir. Adicione pelo menos um produto com descrição ou valor.');
+                return;
+            }
+
+            const dataString = JSON.stringify({
+                products: products,
+                total: total
+            });
+
+            const encoded = encodeURIComponent(dataString);
+            
+            window.open(`print.html?data=${encoded}`, '_blank');
+        }
+    </script>
+</body>
+</html>
