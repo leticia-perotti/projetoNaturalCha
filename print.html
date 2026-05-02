@@ -273,11 +273,6 @@
         <div id="content">
             <pre id="receipt" class="receipt">Carregando dados...</pre>
         </div>
-
-        <div class="button-container">
-            <button class="btn-print" onclick="window.print()">Imprimir</button>
-            <button class="btn-back" onclick="window.history.back()">Voltar</button>
-        </div>
     </div>
 
     <script>
@@ -315,6 +310,7 @@
 
             const width = 32;
             const line = '-'.repeat(width);
+            const lineBottom = '.'.repeat(width);
             const store = centerText('NATURAL CHA', width);
             const address1 = centerText('RUA PRUDENTE DE MORAIS, 415', width);
             const address2 = centerText('CENTRO - UVA - PR', width);
@@ -324,6 +320,7 @@
             const headerRow = padRight('#', 2) + padRight('PRODUTOS', 18) + padLeft('VALOR', 11);
 
             let lines = [];
+            lines.push('\n');
             lines.push(store);
             lines.push(address1);
             lines.push(address2);
@@ -347,8 +344,8 @@
             lines.push(line);
             lines.push(centerText('#DOCUMENTO SEM VALIDADE FISCAL#', width));
             lines.push(line);
-            lines.push('\n');
-
+            lines.push(line);
+            lines.push(lineBottom);
             receipt.textContent = lines.join('\n');
         }
 
