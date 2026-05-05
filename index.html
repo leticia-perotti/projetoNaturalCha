@@ -403,11 +403,10 @@
         }
 
         function clearForm() {
-            if (confirm('Tem certeza que deseja limpar o formulário?')) {
-                document.getElementById('tableBody').innerHTML = '';
-                document.getElementById('totalValue').textContent = 'R$ 0,00';
-                addProductRow();
-            }
+            document.getElementById('tableBody').innerHTML = '';
+            document.getElementById('totalValue').textContent = 'R$ 0,00';
+            addProductRow();
+        
         }
 
         function printTable() {
@@ -419,7 +418,7 @@
                 const description = row.querySelector('.descricao').value.trim();
                 const value = parseFloat(row.querySelector('.total').value) || 0;
 
-                if (description || value > 0) {
+                if (value > 0) {
                     products.push({
                         number: index + 1,
                         description: description,
@@ -438,6 +437,9 @@
                 products: products,
                 total: total
             });
+
+
+            clearForm();
 
             const encoded = encodeURIComponent(dataString);
             
