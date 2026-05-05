@@ -299,13 +299,13 @@
                     <input type="text" class="descricao" placeholder="Descrição" id="descricao" />
                 </td>
                 <td>
-                    <input type="number" class="quantidade" placeholder="0,00" min="0" step="0.01" value="1" id="quantidade" />
+                    <input type="number" class="quantidade" placeholder="0,00" min="0" step="0.01" value="1"/>
                 </td>
                 <td>
-                    <input type="number" class="unitario" placeholder="0,00" min="0" step="0.01" id="unitario"  />
+                    <input type="number" class="unitario" placeholder="0,00" min="0" step="0.01"  />
                 </td>
                 <td>
-                    <input type="number" class="total" placeholder="0,00" min="0" step="0.01" disabled  id="total" />
+                    <input type="number" class="total" placeholder="0,00" min="0" step="0.01" disabled  />
                 </td>
                 <td class="delete-cell">
                     <button type="button" class="btn-delete" onclick="removeProductRow(this)">🗑️</button>
@@ -319,9 +319,7 @@
                 if ((e.key === 'Tab' || e.key === 'Enter' )&& !e.shiftKey) {
                     e.preventDefault();
                     row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value) * parseFloat(row.querySelector('.quantidade').value);
-
                     calculateTotal()
-
                     if (e.key === 'Tab') {
                         addProductRow();
                         const newRow = tbody.rows[tbody.rows.length - 1];
@@ -330,6 +328,10 @@
                         printTable()
                     }
                 }
+            });
+            valueInput.addEventListener('blur', () => {
+                row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value) * parseFloat(row.querySelector('.quantidade').value);
+                calculateTotal();
             });
 
             row.querySelector('.produto').addEventListener('keydown', function(e) {
