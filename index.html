@@ -288,7 +288,7 @@
         function addProductRow() {
             const tbody = document.getElementById('tableBody');
             const rowNumber = tbody.rows.length + 1;
-            
+
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="row-number">${rowNumber}</td>
@@ -299,7 +299,7 @@
                     <input type="text" class="descricao" placeholder="Descrição" id="descricao" />
                 </td>
                 <td>
-                    <input type="number" class="quantidade" placeholder="0,00" min="0" step="0.01" value="1"/>
+                    <input type="number" class="quantidade" placeholder="0,00" min="0" step="0.01"/>
                 </td>
                 <td>
                     <input type="number" class="unitario" placeholder="0,00" min="0" step="0.01"  />
@@ -311,45 +311,53 @@
                     <button type="button" class="btn-delete" onclick="removeProductRow(this)">🗑️</button>
                 </td>
             `;
-            
+
             tbody.appendChild(row);
 
-            const valueInput = row.querySelector('.unitario');
-            valueInput.addEventListener('keydown', function(e) {
-                if ((e.key === 'Tab' || e.key === 'Enter' )&& !e.shiftKey) {
-                    e.preventDefault();
-                    row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value) * parseFloat(row.querySelector('.quantidade').value);
-                    calculateTotal()
-                    if (e.key === 'Tab') {
-                        addProductRow();
-                        const newRow = tbody.rows[tbody.rows.length - 1];
-                        newRow.querySelector('.produto').focus();
-                    } else {
-                        printTable()
-                    }
-                }
+            // Seleciona todos os inputs editáveis da linha (exceto total)
+            const inputs = [
+                row.querySelector('.produto'),
+                row.querySelector('.descricao'),
+                row.querySelector('.quantidade'),
+                row.querySelector('.unitario')
+            ];
+
+            row.querySelector('.unitario').addEventListener('af', () => {
+                const quantidade = parseFloat(row.querySelector('.quantidade').value) || 0;
+                const unitario = parseFloat(row.querySelector('.unitario').value) || 0;
+                row.querySelector('.total').value = (quantidade * unitario).toFixed(2);
+                calculateTotal();
             });
+            
+            // Enter navega para o próximo campo, e na última coluna adiciona linha
+            inputs.forEach((input, idx) => {
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (idx < inputs.length - 1) {
+                            inputs[idx + 1].focus();
+                        } else {
+                            // Atualiza o total da linha
+                            row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0);
+                            calculateTotal();
+                            addProductRow();
+                            const newRow = tbody.rows[tbody.rows.length - 1];
+                            newRow.querySelector('.produto').focus();
+                        }
+                    } else if (e.key === '*' && !e.shiftKey) {
+                        printTable();
+                    }
+                });
+            });
+
+            // Atualiza o total ao sair do campo unitário
+            const valueInput = row.querySelector('.unitario');
             valueInput.addEventListener('blur', () => {
-                row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value) * parseFloat(row.querySelector('.quantidade').value);
+                row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0);
                 calculateTotal();
             });
 
-            row.querySelector('.produto').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    printTable()
-                }
-            });
-            row.querySelector('.descricao').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    printTable()
-                }
-            });
-            row.querySelector('.quantidade').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    printTable()
-                }
-            });
-
+            // Atalhos para preencher descrição pelo código do produto
             const produto = row.querySelector('.produto');
             produto.addEventListener('keydown', function(e) {
                 if (e.key === '1' && !e.shiftKey) {
