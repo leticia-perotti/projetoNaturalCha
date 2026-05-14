@@ -425,10 +425,11 @@
             rows.forEach((row, index) => {
                 const description = row.querySelector('.descricao').value.trim();
                 const value = parseFloat(row.querySelector('.total').value) || 0;
+                const qtd = parseFloat(row.querySelector('.quantidade').value) || 0;
 
                 if (value > 0) {
                     products.push({
-                        number: index + 1,
+                        number: qtd + "x",
                         description: description,
                         value: value
                     });
