@@ -317,7 +317,7 @@
             const dateLine = centerText(getCurrentDate(), width);
             const title = centerText('ITENS DA COMPRA', width);
 
-            const headerRow = padRight('#', 2) + padRight('PRODUTOS', 18) + padLeft('VALOR', 11);
+            const headerRow = padRight('QTD.', 4) + padRight('PRODUTOS', 14) +  padRight('UN', 4)  + padLeft('VALOR', 8);
 
             let lines = [];
             lines.push('\n');
@@ -335,7 +335,7 @@
             data.products.forEach((product) => {
                 const desc = removeAccents(String(product.description || '').toUpperCase()).substring(0, 20);
                 const value = formatCurrency(product.value);
-                const row = padRight(String(product.number), 2) + padRight(desc, 15) + padLeft(value, 15);
+                const row = padRight(String(product.number), 4) + padRight(desc, 14) +padRight(product.unitario, 6) +  padLeft(value, 8);
                 lines.push(row);
             });
 

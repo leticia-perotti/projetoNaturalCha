@@ -345,7 +345,17 @@
                             newRow.querySelector('.produto').focus();
                         }
                     } else if (e.key === '*' && !e.shiftKey) {
-                        printTable();
+                        e.preventDefault();
+                        const total =
+                                    parseFloat(row.querySelector('.unitario').value || 0) *
+                                    parseFloat(row.querySelector('.quantidade').value || 0);
+
+                        row.querySelector('.total').value = total;
+                        calculateTotal();
+
+                        setTimeout(() => {
+                            printTable();
+                        }, 50);
                     }
                 });
             });
@@ -426,12 +436,15 @@
                 const description = row.querySelector('.descricao').value.trim();
                 const value = parseFloat(row.querySelector('.total').value) || 0;
                 const qtd = parseFloat(row.querySelector('.quantidade').value) || 0;
+                const un = parseFloat(row.querySelector('.unitario').value) || 0;
+
 
                 if (value > 0) {
                     products.push({
                         number: qtd + "x",
                         description: description,
-                        value: value
+                        value: value,
+                        unitario: un
                     });
                     total += value;
                 }
