@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impressao - Formulario de Produtos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 57mm;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 0;
+            margin: 0;
+            font-size: 11px;
+            color: #000;
+        }
+
+        .container {
+            width: 57mm;
+            margin: 0;
+            background: white;
+            padding: 3px;
+            box-shadow: none;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding: 3px 0;
+            margin-bottom: 3px;
+        }
+
+        .header h1 {
+            font-size: 10px;
+            color: #000;
+            margin-bottom: 0;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .header h2 {
+            font-size: 10px;
+            color: #000;
+            margin-bottom: 0;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: #000;
+            font-size: 8px;
+            line-height: 1.2;
+            margin-bottom: 0;
+        }
+
+        .print-date {
+            text-align: center;
+            color: #000;
+            font-size: 8px;
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 3px;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+
+        .products-table thead {
+            background: white;
+        }
+
+        .products-table th {
+            padding: 1px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            color: #000;
+            font-size: 8px;
+            line-height: 1;
+        }
+
+        .products-table td {
+            padding: 1px;
+            border-bottom: 1px dotted #000;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+
+        .products-table tbody tr:last-child td {
+            border-bottom: 1px solid #000;
+        }
+
+        .row-number {
+            width: 8%;
+            text-align: center;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .description {
+            width: 55%;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .value {
+            width: 37%;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .total-section {
+            display: block;
+            text-align: right;
+            margin-bottom: 3px;
+            padding: 3px 0;
+            border-top: 1px solid #000;
+        }
+
+        .total-box {
+            width: 100%;
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+
+        .total-label {
+            font-size: 8px;
+            font-weight: bold;
+            color: #000;
+            line-height: 1;
+        }
+
+        .total-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3px;
+            padding-top: 3px;
+            border-top: 1px solid #000;
+            color: #000;
+            font-size: 8px;
+            line-height: 1.2;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 10px;
+            color: #000;
+            font-size: 9px;
+        }
+
+        .receipt {
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 20px;
+            margin: 0 5px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-print {
+            background: #333;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #555;
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        @media print {
+            html, body {
+                width: 57mm;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                width: 57mm;
+                padding: 3px;
+                margin: 0;
+            }
+
+            .button-container {
+                display: none;
+            }
+
+            .no-data {
+                display: none;
+            }
+
+            @page {
+                size: 57mm auto;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 3px;
+            }
+
+            .header h1 {
+                font-size: 10px;
+            }
+
+            .products-table th,
+            .products-table td {
+                padding: 1px;
+                font-size: 8px;
+            }
+
+            button {
+                padding: 6px 15px;
+                margin: 3px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            <pre id="receipt" class="receipt">Carregando dados...</pre>
+        </div>
+    </div>
+
+    <script>
+        function removeAccents(text) {
+            return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function formatCurrency(value) {
+            return 'R$ ' + value.toFixed(2).replace('.', ',');
+        }
+
+        function getDataFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            
+            if (!data) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(decodeURIComponent(data));
+            } catch (e) {
+                console.error('Erro ao decodificar:', e);
+                return null;
+            }
+        }
+
+        function renderTable(data) {
+            const receipt = document.getElementById('receipt');
+
+            if (!data || !data.itensSoma || data.itensSoma.length === 0) {
+                receipt.textContent = 'Nenhum produto.';
+                return;
+            }
+
+            const width = 32;
+            const line = '-'.repeat(width);
+            const lineBottom = '.'.repeat(width);
+            const store = centerText('NATURAL CHA', width);
+            const address1 = centerText('RUA PRUDENTE DE MORAIS, 415', width);
+            const address2 = centerText('CENTRO - UVA - PR', width);
+            const dateLine = centerText(getCurrentDate(), width);
+            const title = centerText('ITENS DA SOMA', width);
+
+            let lines = [];
+            lines.push('\n');
+            lines.push(store);
+            lines.push(address1);
+            lines.push(address2);
+            lines.push(line);
+            lines.push(dateLine);
+            lines.push(line);
+            lines.push(title);
+            lines.push(line);
+
+            data.itensSoma.forEach((itens) => {
+                const value = formatCurrency(itens.value);
+                const row =padRight(itens.operation, 21) +  padLeft(value, 11);
+                lines.push(row);
+            });
+
+            lines.push(line);
+            lines.push(padRight('TOTAL', 21) + padLeft(formatCurrency(data.total), 11));
+            lines.push(line);
+            lines.push(centerText('#DOCUMENTO SEM VALIDADE FISCAL#', width));
+            lines.push(line);
+            lines.push(line);
+            lines.push(lineBottom);
+            receipt.textContent = lines.join('\n');
+        }
+
+        function padRight(text, length) {
+            const s = String(text);
+            return s.length >= length ? s.substring(0, length) : s + ' '.repeat(length - s.length);
+        }
+
+        function padLeft(text, length) {
+            const s = String(text);
+            return s.length >= length ? s.substring(s.length - length) : ' '.repeat(length - s.length) + s;
+        }
+
+        function centerText(text, length) {
+            const s = String(text);
+            if (s.length >= length) return s.substring(0, length);
+            const padding = length - s.length;
+            const left = Math.floor(padding / 2);
+            const right = padding - left;
+            return ' '.repeat(left) + s + ' '.repeat(right);
+        }
+
+        function formatCurrency(value) {
+            return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ',');
+        }
+
+        function getCurrentDate() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+        }
+
+        function setCurrentDate() {
+            const printDateEl = document.getElementById('printDate');
+            if (printDateEl) {
+                printDateEl.textContent = getCurrentDate();
+            }
+        }
+
+        window.addEventListener('load', function() {
+            setCurrentDate();
+            const data = getDataFromURL();
+            renderTable(data);
+
+            window.print()
+        });
+
+        window.addEventListener('afterprint', function() {
+            window.close ();
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora Somadora</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f3f4f6;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .table {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 120px 180px 90px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 5px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        .result {
+            background: #f9fafb;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .remove-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            color: white;
+            font-size: 15px;
+        }
+
+        .btn-add {
+            background: #2563eb;
+        }
+
+        .btn-add:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-clear {
+            background: #6b7280;
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+        }
+
+        .btn-print {
+            background: #16a34a;
+        }
+
+        .btn-print:hover {
+            background: #15803d;
+        }
+
+        .total-box {
+            margin-top: 35px;
+            background: #111827;
+            color: white;
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .total-label {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .grand-total {
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+
+            .actions,
+            .remove-btn {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🧮 Calculadora Somadora</h1>
+
+        <p class="subtitle">
+            Digite os valores e pressione ENTER para navegar rapidamente.
+        </p>
+
+        <div class="table">
+
+            <div class="row header">
+                <div>Valor</div>
+                <div>Operação</div>
+                <div>Resultado Parcial</div>
+                <div>Ação</div>
+            </div>
+
+            <div id="rows" class="linhasSoma"></div>
+
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-add" onclick="addRow()">
+                ➕ Nova Linha
+            </button>
+
+            <button class="btn btn-clear" onclick="clearAll()">
+                🗑 Limpar
+            </button>
+
+            <button class="btn btn-print" onclick="printTable()">
+                🖨 Imprimir
+            </button>
+        </div>
+
+        <div class="total-box">
+            <div class="total-label">TOTAL GERAL</div>
+            <div class="grand-total" id="grandTotal">
+                R$ 0,00
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rowsContainer = document.getElementById("rows");
+
+        function formatCurrency(value) {
+            return value.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function addRow(value = "", operation = "+") {
+
+            const row = document.createElement("div");
+            row.classList.add("row");
+
+            row.innerHTML = `
+        <input 
+          type="number"
+          step="0.01"
+          class="value"
+          placeholder="Digite o valor"
+          value="${value}"
+        />
+
+        <select class="operation">
+          <option value="+">+</option>
+          <option value="-">-</option>
+          <option value="*">×</option>
+          <option value="/">÷</option>
+        </select>
+
+        <input
+          type="text"
+          class="result"
+          readonly
+          value="0,00"
+        />
+
+        <button class="remove-btn">
+          ❌
+        </button>
+      `;
+
+            rowsContainer.appendChild(row);
+
+            const valueInput = row.querySelector(".value");
+            const operationSelect = row.querySelector(".operation");
+            const resultField = row.querySelector(".result");
+            const removeBtn = row.querySelector(".remove-btn");
+
+            operationSelect.value = operation;
+
+            function calculate() {
+                calculateGrandTotal();
+
+                const total =
+                    document.getElementById("grandTotal")
+                        .innerText;
+
+                resultField.value = total;
+            }
+
+            valueInput.addEventListener("input", calculate);
+            operationSelect.addEventListener("change", calculate);
+
+            // ENTER NO VALOR → VAI PRA OPERAÇÃO
+            valueInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    operationSelect.focus();
+                }
+            });
+
+            // ENTER NA OPERAÇÃO → NOVA LINHA
+            operationSelect.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+
+                    addRow();
+
+                    const rows =
+                        document.querySelectorAll(".row");
+
+                    const lastRow =
+                        rows[rows.length - 1];
+
+                    lastRow.querySelector(".value").focus();
+                }
+            });
+
+            removeBtn.addEventListener("click", () => {
+                row.remove();
+                calculateGrandTotal();
+            });
+
+            calculate();
+        }
+
+        function calculateGrandTotal() {
+
+            const rows =
+                document.querySelectorAll("#rows .row");
+
+            let total = 0;
+
+            rows.forEach((row, index) => {
+
+                const value =
+                    parseFloat(
+                        row.querySelector(".value").value
+                    ) || 0;
+
+                const operation =
+                    row.querySelector(".operation").value;
+
+                if (index === 0) {
+                    total = value;
+                } else {
+
+                    switch (operation) {
+
+                        case "+":
+                            total += value;
+                            break;
+
+                        case "-":
+                            total -= value;
+                            break;
+
+                        case "*":
+                            total *= value;
+                            break;
+
+                        case "/":
+                            if (value !== 0) {
+                                total /= value;
+                            }
+                            break;
+                    }
+                }
+            });
+
+            document.getElementById("grandTotal").innerText =
+                formatCurrency(total);
+        }
+
+        function clearAll() {
+
+            rowsContainer.innerHTML = "";
+
+            addRow();
+
+            document.getElementById("grandTotal").innerText =
+                formatCurrency(0);
+        }
+
+        addRow();
+
+        setTimeout(() => {
+            document.querySelector(".value").focus();
+        }, 100);
+
+
+        function printTable() {
+
+            const rows =
+                document.querySelectorAll('#rows .row');
+
+            const itensSoma = [];
+
+            let total = 0;
+
+            rows.forEach((row, index) => {
+
+                const value =
+                    parseFloat(
+                        row.querySelector('.value').value
+                    ) || 0;
+
+                const operation =
+                    row.querySelector('.operation').value;
+
+                if (value !== 0) {
+
+                    itensSoma.push({
+                        value: value,
+                        operation: operation
+                    });
+
+                    if (index === 0) {
+
+                        total = value;
+
+                    } else {
+
+                        switch (operation) {
+
+                            case "+":
+                                total += value;
+                                break;
+
+                            case "-":
+                                total -= value;
+                                break;
+
+                            case "*":
+                                total *= value;
+                                break;
+
+                            case "/":
+                                if (value !== 0) {
+                                    total /= value;
+                                }
+                                break;
+                        }
+                    }
+                }
+            });
+
+            if (itensSoma.length === 0) {
+
+                alert(
+                    'Nenhum valor para imprimir.'
+                );
+
+                return;
+            }
+
+            const dataString = JSON.stringify({
+                itensSoma: itensSoma,
+                total: total
+            });
+
+            const encoded =
+                encodeURIComponent(dataString);
+
+
+            clearAll();
+            
+            window.open(
+                `print.html?data=${encoded}`,
+                '_blank'
+            );
+        }
+    </script>
+
+</body>
+
+</html>
