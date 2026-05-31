@@ -303,7 +303,7 @@
         function renderTable(data) {
             const receipt = document.getElementById('receipt');
 
-            if (!data || !data.itensSoma || data.itensSoma.length === 0) {
+            if (!data || !data.products || data.products.length === 0) {
                 receipt.textContent = 'Nenhum produto.';
                 return;
             }
@@ -328,9 +328,8 @@
             lines.push(title);
             lines.push(line);
 
-            data.itensSoma.forEach((itens) => {
-                const value = formatCurrency(itens.value);
-                const row =padRight(itens.operation, 21) +  padLeft(value, 11);
+            data.products.forEach((itens) => {
+                const row =padLeft(itens.expression, 32)
                 lines.push(row);
             });
 
