@@ -278,6 +278,11 @@
 				default:
 					result = secondOperand;
 			}
+
+			if (historyEntries.length === 0){
+				const expression = `${formatNumber(firstOperand)}`;
+				addHistoryEntry(expression);
+			}
 			const expression = `${operator} ${formatNumber(secondOperand)} = ${formatNumber(result)}`;
 			displayValue = formatNumber(result);
 			addHistoryEntry(expression);
@@ -297,7 +302,7 @@
 			firstOperand = null;
 			waitingForSecondOperand = false;
 			operator = null;
-			historyEntries = []
+			historyEntries = [];
 			renderHistory();
 			updateDisplay();
 		}
