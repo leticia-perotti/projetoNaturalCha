@@ -363,6 +363,9 @@
 		// Inicialização
 		updateDisplay();
 
+		let enterClickCount = 0;
+		let enterClickTimeout = null;
+
 		// Teclado físico
 		document.addEventListener('keydown', function(e) {
 			if (e.key >= '0' && e.key <= '9') {
@@ -380,11 +383,14 @@
 			} else if (e.key === '%') {
 				setOperator('%');
 			} else if (e.key === 'Enter') {
+				e.preventDefault();
 				calculateResult();
-			} else if (e.key === '=') {
+			} else if (e.key === '=' || e.key === '+') {
 				calculateResult();
 			} else if (e.key === 'c' || e.key === 'C') {
 				clearAll();
+			} else if (e.key === 'p' || e.key === 'P') {
+				printHistory();
 			}
 		});
 	</script>
