@@ -311,21 +311,12 @@
             const width = 32;
             const line = '-'.repeat(width);
             const lineBottom = '.'.repeat(width);
-            const store = centerText('NATURAL CHA', width);
-            const address1 = centerText('RUA PRUDENTE DE MORAIS, 415', width);
-            const address2 = centerText('CENTRO - UVA - PR', width);
             const dateLine = centerText(getCurrentDate(), width);
-            const title = centerText('ITENS DA SOMA', width);
 
             let lines = [];
             lines.push('\n');
-            lines.push(store);
-            lines.push(address1);
-            lines.push(address2);
             lines.push(line);
             lines.push(dateLine);
-            lines.push(line);
-            lines.push(title);
             lines.push(line);
 
             data.products.forEach((itens) => {
@@ -334,10 +325,7 @@
             });
 
             lines.push(line);
-            lines.push(padRight('TOTAL', 21) + padLeft(formatCurrency(data.total), 11));
-            lines.push(line);
-            lines.push(centerText('#DOCUMENTO SEM VALIDADE FISCAL#', width));
-            lines.push(line);
+            lines.push(padLeft(formatCurrency(data.total), 32));
             lines.push(line);
             lines.push(lineBottom);
             receipt.textContent = lines.join('\n');
