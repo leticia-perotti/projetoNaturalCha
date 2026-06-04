@@ -106,10 +106,24 @@
 			font-size: 2.2rem;
 			border-radius: 10px;
 			padding: 18px 12px;
-			margin-bottom: 18px;
+			margin-bottom: 12px;
 			text-align: right;
 			min-height: 48px;
 			letter-spacing: 1px;
+		}
+
+		.total-display {
+			background: #1f2937;
+			color: #60a5fa;
+			font-size: 1rem;
+			border-radius: 10px;
+			padding: 10px 12px;
+			margin-bottom: 18px;
+			text-align: right;
+			min-height: 32px;
+			letter-spacing: 0.5px;
+			border: 1px solid #374151;
+			font-weight: bold;
 		}
 
 		.buttons {
@@ -206,10 +220,13 @@
 	</div>
 	<script>
 		let displayValue = '0';
-		let accumulator = 0;
+		let totalSumPrint = 0
+		let accumulator = null;
+		let originalValue = null;
 		let currentOperator = null;
 		let justCalculated = false;
 		let historyEntries = [];
+		let totalSum = 0;
 		const maxHistoryItems = 6;
 
 		function updateDisplay() {
@@ -220,6 +237,7 @@
 			if (justCalculated) {
 				displayValue = digit;
 				justCalculated = false;
+				originalValue = parseFloat(digit);
 			} else {
 				displayValue = displayValue === '0' ? digit : displayValue + digit;
 			}
@@ -266,16 +284,30 @@
 			if (accumulator === null) {
 				// Primeira operação - apenas acumula
 				accumulator = currentValue;
+				originalValue = currentValue;
 				const expression = `${formatNumber(currentValue)}`;
 				addHistoryEntry(expression);
-			} else {
-				// Operações subsequentes - calcula usando o novo operador
-				let result = performCalculation(accumulator, currentValue, op);
-				const expression = ` ${op} ${formatNumber(currentValue)} = ${formatNumber(result)}`;
+			} else if (justCalculated && currentOperator) {
+				// Operador clicado repetidamente sem digitar novo número
+				// Aplica o operador anterior com o valor original
+				let result = performCalculation(accumulator, originalValue, currentOperator);
+				const expression = ` ${currentOperator} ${formatNumber(originalValue)}`;
 				addHistoryEntry(expression);
 
 				accumulator = result;
 				displayValue = formatNumber(result);
+				totalSumPrint = displayValue
+				updateDisplay();
+			} else {
+				// Operações subsequentes - calcula usando o novo operador
+				let result = performCalculation(accumulator, currentValue, currentOperator);
+				const expression = ` ${currentOperator} ${formatNumber(currentValue)}`;
+				addHistoryEntry(expression);
+
+				accumulator = result;
+				originalValue = currentValue;
+				displayValue = formatNumber(result);
+				totalSumPrint = displayValue
 				updateDisplay();
 			}
 
@@ -309,9 +341,29 @@
 			const currentValue = parseDisplay();
 
 			if (accumulator !== null && currentOperator !== null) {
-				displayValue = formatNumber(accumulator * (currentValue / 100));
+				// Aplicar percentual com operador: valor + (valor * %)
+				let result;
+				if (currentOperator === '*') {
+					result = accumulator * (1 + currentValue / 100);
+				} else if (currentOperator === '+') {
+					result = accumulator + (accumulator * currentValue / 100);
+				} else if (currentOperator === '-') {
+					result = accumulator - (accumulator * currentValue / 100);
+				} else if (currentOperator === '/') {
+					result = accumulator / (currentValue / 100);
+				} else {
+					result = currentValue;
+				}
+				displayValue = formatNumber(result);
+				totalSumPrint = displayValue;
+				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(currentValue)}%`;
+				addHistoryEntry(expression);
+				accumulator = parseDisplay();
+				currentOperator = null;
+				originalValue = null;
 			} else {
 				displayValue = formatNumber(currentValue / 100);
+				totalSumPrint = displayValue
 			}
 			justCalculated = true;
 			updateDisplay();
@@ -322,48 +374,60 @@
 				return;
 			}
 
-			if (justCalculated === true) {
-				return;
+			let result;
+			const currentValue = parseDisplay();
+
+			if (justCalculated) {
+				// Operadores foram clicados repetidamente
+				result = accumulator;
+				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(originalValue)}`;
+				addHistoryEntry(expression);
+			} else {
+				// Cálculo normal
+				if (currentValue === 0 && displayValue === '0') {
+					result = accumulator;
+				} else {
+					result = performCalculation(accumulator, currentValue, currentOperator);
+				}
+				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(currentValue)}`;
+				addHistoryEntry(expression);
 			}
 
-			const currentValue = parseDisplay();
-			if (currentValue === 0 && displayValue === '0') {
-				// Se não digitou nada, usar 0
-				const result = accumulator;
-				const expression = `${formatNumber(accumulator)} ${currentOperator} 0 = ${formatNumber(result)}`;
-				addHistoryEntry(expression);
-				displayValue = formatNumber(result);
-				updateDisplay();
-			} else {
-				// Usa o operador armazenado
-				let result = performCalculation(accumulator, currentValue, currentOperator);
-				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(currentValue)} = ${formatNumber(result)}`;
-				addHistoryEntry(expression);
-				displayValue = formatNumber(result);
-				updateDisplay();
-			}
+			displayValue = formatNumber(result);
+			totalSumPrint = displayValue
+			updateDisplay();
 
 			accumulator = parseDisplay();
 			currentOperator = null;
+			originalValue = null;
 			justCalculated = true;
 		}
 
 		function clearDisplayOnly() {
 			displayValue = '0';
+			totalSumPrint = 0
 			accumulator = null;
 			currentOperator = null;
+			originalValue = null;
 			justCalculated = false;
 			updateDisplay();
 		}
 
 		function clearAll() {
 			displayValue = '0';
+			totalSumPrint = 0
 			accumulator = null;
 			currentOperator = null;
+			originalValue = null;
 			justCalculated = false;
 			historyEntries = [];
+			totalSum = 0;
 			renderHistory();
 			updateDisplay();
+		}
+
+		function formatNumber(num) {
+			return num.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
 		}
 
 		function printHistory() {
@@ -383,7 +447,7 @@
 				};
 			});
 
-			const total = displayValue;
+			const total = totalSumPrint;
 
 			const dataString = JSON.stringify({
 				products: rows.reverse(),
@@ -396,10 +460,6 @@
 
 			clearAll();
 			window.open(`print.html?data=${encoded}`, '_blank');
-		}
-
-		function formatNumber(num) {
-			return num.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
 		}
 
 		// Inicialização
