@@ -219,281 +219,262 @@
 		</div>
 	</div>
 	<script>
-		let displayValue = '0';
-		let totalSumPrint = 0
-		let accumulator = null;
-		let originalValue = null;
-		let currentOperator = null;
-		let justCalculated = false;
-		let historyEntries = [];
-		let totalSum = 0;
-		const maxHistoryItems = 6;
-
-		function updateDisplay() {
-			document.getElementById('display').innerText = displayValue.replace('.', ',');
-		}
-
-		function inputDigit(digit) {
-			if (justCalculated) {
-				displayValue = digit;
-				justCalculated = false;
-				originalValue = parseFloat(digit);
-			} else {
-				displayValue = displayValue === '0' ? digit : displayValue + digit;
-			}
-			updateDisplay();
-		}
-
-		function inputDot() {
-			if (!displayValue.includes('.') && !displayValue.includes(',')) {
-				displayValue += '.';
-			}
-			updateDisplay();
-		}
-
-		function parseDisplay() {
-			return parseFloat(displayValue.replace(',', '.')) || 0;
-		}
-
-		function addHistoryEntry(entry) {
-			historyEntries.unshift(entry);
-			if (historyEntries.length > maxHistoryItems) {
-				historyEntries.pop();
-			}
-			renderHistory();
-		}
-
-		function renderHistory() {
-			const historyList = document.getElementById('historyList');
-			historyList.innerHTML = '';
-			if (historyEntries.length === 0) {
-				historyList.innerHTML = '<li class="history-item">Nenhuma operação ainda.</li>';
-				return;
-			}
-			historyEntries.forEach(item => {
-				const li = document.createElement('li');
-				li.className = 'history-item';
-				li.textContent = item;
-				historyList.appendChild(li);
-			});
-		}
-
-		function setOperator(op) {
-			const currentValue = parseDisplay();
-
-			if (accumulator === null) {
-				// Primeira operação - apenas acumula
-				accumulator = currentValue;
-				originalValue = currentValue;
-				const expression = `${formatNumber(currentValue)}`;
-				addHistoryEntry(expression);
-			} else if (justCalculated && currentOperator) {
-				// Operador clicado repetidamente sem digitar novo número
-				// Aplica o operador anterior com o valor original
-				let result = performCalculation(accumulator, originalValue, currentOperator);
-				const expression = ` ${currentOperator} ${formatNumber(originalValue)}`;
-				addHistoryEntry(expression);
-
-				accumulator = result;
-				displayValue = formatNumber(result);
-				totalSumPrint = displayValue
-				updateDisplay();
-			} else {
-				// Operações subsequentes - calcula usando o novo operador
-				let result = performCalculation(accumulator, currentValue, currentOperator);
-				const expression = ` ${currentOperator} ${formatNumber(currentValue)}`;
-				addHistoryEntry(expression);
-
-				accumulator = result;
-				originalValue = currentValue;
-				displayValue = formatNumber(result);
-				totalSumPrint = displayValue
-				updateDisplay();
+		class CalculatorState {
+			constructor() {
+				this.displayValue = '0';
+				this.accumulator = null;
+				this.originalValue = null;
+				this.currentOperator = null;
+				this.justCalculated = false;
+				this.historyEntries = [];
+				this.MAX_HISTORY_ITEMS = 6;
 			}
 
-			currentOperator = op;
-			justCalculated = true;
-		}
+			reset() {
+				this.displayValue = '0';
+				this.accumulator = null;
+				this.originalValue = null;
+				this.currentOperator = null;
+				this.justCalculated = false;
+			}
 
-		function performCalculation(first, second, op) {
-			switch (op) {
-				case '+':
-					return first + second;
-				case '-':
-					return first - second;
-				case '*':
-					return first * second;
-				case '/':
-					if (second === 0) {
-						displayValue = 'Erro';
-						updateDisplay();
-						return first;
-					}
-					return first / second;
-				case '%':
-					return first * (second / 100);
-				default:
-					return second;
+			clearHistory() {
+				this.historyEntries = [];
+				this.reset();
+			}
+
+			addHistoryEntry(entry) {
+				this.historyEntries.unshift(entry);
+				if (this.historyEntries.length > this.MAX_HISTORY_ITEMS) {
+					this.historyEntries.pop();
+				}
 			}
 		}
 
-		function applyPercentage() {
-			const currentValue = parseDisplay();
+		class CalculatorEngine {
+			constructor(state) {
+				this.state = state;
+			}
 
-			if (accumulator !== null && currentOperator !== null) {
-				// Aplicar percentual com operador: valor + (valor * %)
+			parseDisplay() {
+				return parseFloat(this.state.displayValue.replace(',', '.')) || 0;
+			}
+
+			formatNumber(num) {
+				return num.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
+			}
+
+			performCalculation(first, second, op) {
+				const operations = {
+					'+': (a, b) => a + b,
+					'-': (a, b) => a - b,
+					'*': (a, b) => a * b,
+					'/': (a, b) => b === 0 ? null : a / b,
+					'%': (a, b) => a * (b / 100)
+				};
+				return operations[op]?.(first, second) ?? second;
+			}
+
+			isValidDivision(second) {
+				return second !== 0;
+			}
+
+			getTotalForPrint() {
+				return this.formatNumber(this.parseDisplay());
+			}
+		}
+
+		class CalculatorUI {
+			constructor(state, engine) {
+				this.state = state;
+				this.engine = engine;
+			}
+
+			updateDisplay() {
+				document.getElementById('display').innerText = this.state.displayValue.replace('.', ',');
+			}
+
+			renderHistory() {
+				const historyList = document.getElementById('historyList');
+				historyList.innerHTML = '';
+				if (this.state.historyEntries.length === 0) {
+					historyList.innerHTML = '<li class="history-item">Nenhuma operação ainda.</li>';
+					return;
+				}
+				this.state.historyEntries.forEach(item => {
+					const li = document.createElement('li');
+					li.className = 'history-item';
+					li.textContent = item;
+					historyList.appendChild(li);
+				});
+			}
+
+			inputDigit(digit) {
+				if (this.state.justCalculated) {
+					this.state.displayValue = digit;
+					this.state.justCalculated = false;
+					this.state.originalValue = parseFloat(digit);
+				} else {
+					this.state.displayValue = this.state.displayValue === '0' ? digit : this.state.displayValue + digit;
+				}
+				this.updateDisplay();
+			}
+
+			inputDot() {
+				if (!this.state.displayValue.includes('.') && !this.state.displayValue.includes(',')) {
+					this.state.displayValue += '.';
+				}
+				this.updateDisplay();
+			}
+
+			setOperator(op) {
+				const currentValue = this.engine.parseDisplay();
+
+				if (this.state.accumulator === null) {
+					this.state.accumulator = currentValue;
+					this.state.originalValue = currentValue;
+					const expression = `${this.engine.formatNumber(currentValue)}`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
+				} else if (this.state.justCalculated && this.state.currentOperator) {
+					let result = this.engine.performCalculation(this.state.accumulator, this.state.originalValue, this.state.currentOperator);
+					const expression = ` ${this.state.currentOperator} ${this.engine.formatNumber(this.state.originalValue)}`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
+
+					this.state.accumulator = result;
+					this.state.displayValue = this.engine.formatNumber(result);
+					this.updateDisplay();
+				} else {
+					let result = this.engine.performCalculation(this.state.accumulator, currentValue, this.state.currentOperator);
+					const expression = ` ${this.state.currentOperator} ${this.engine.formatNumber(currentValue)}`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
+
+					this.state.accumulator = result;
+					this.state.originalValue = currentValue;
+					this.state.displayValue = this.engine.formatNumber(result);
+					this.updateDisplay();
+				}
+
+				this.state.currentOperator = op;
+				this.state.justCalculated = true;
+			}
+
+			applyPercentage() {
+				const currentValue = this.engine.parseDisplay();
+
+				if (this.state.accumulator !== null && this.state.currentOperator !== null) {
+					const percentageOps = {
+						'*': (acc, val) => acc * (1 + val / 100),
+						'+': (acc, val) => acc + (acc * val / 100),
+						'-': (acc, val) => acc - (acc * val / 100),
+						'/': (acc, val) => acc / (val / 100)
+					};
+					const result = percentageOps[this.state.currentOperator]?.(this.state.accumulator, currentValue) ?? currentValue;
+					this.state.displayValue = this.engine.formatNumber(result);
+					const expression = `${this.engine.formatNumber(this.state.accumulator)} ${this.state.currentOperator} ${this.engine.formatNumber(currentValue)}%`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
+					this.state.accumulator = this.engine.parseDisplay();
+					this.state.currentOperator = null;
+					this.state.originalValue = null;
+				} else {
+					this.state.displayValue = this.engine.formatNumber(currentValue / 100);
+				}
+				this.state.justCalculated = true;
+				this.updateDisplay();
+			}
+
+			calculateResult() {
+				if (this.state.currentOperator === null) return;
+
 				let result;
-				if (currentOperator === '*') {
-					result = accumulator * (1 + currentValue / 100);
-				} else if (currentOperator === '+') {
-					result = accumulator + (accumulator * currentValue / 100);
-				} else if (currentOperator === '-') {
-					result = accumulator - (accumulator * currentValue / 100);
-				} else if (currentOperator === '/') {
-					result = accumulator / (currentValue / 100);
+				const currentValue = this.engine.parseDisplay();
+
+				if (this.state.justCalculated) {
+					result = this.state.accumulator;
+					const expression = `${this.engine.formatNumber(this.state.accumulator)} ${this.state.currentOperator} ${this.engine.formatNumber(this.state.originalValue)}`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
 				} else {
-					result = currentValue;
+					result = currentValue === 0 && this.state.displayValue === '0'
+						? this.state.accumulator
+						: this.engine.performCalculation(this.state.accumulator, currentValue, this.state.currentOperator);
+					const expression = `${this.engine.formatNumber(this.state.accumulator)} ${this.state.currentOperator} ${this.engine.formatNumber(currentValue)}`;
+					this.state.addHistoryEntry(expression);
+					this.renderHistory();
 				}
-				displayValue = formatNumber(result);
-				totalSumPrint = displayValue;
-				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(currentValue)}%`;
-				addHistoryEntry(expression);
-				accumulator = parseDisplay();
-				currentOperator = null;
-				originalValue = null;
-			} else {
-				displayValue = formatNumber(currentValue / 100);
-				totalSumPrint = displayValue
-			}
-			justCalculated = true;
-			updateDisplay();
-		}
 
-		function calculateResult() {
-			if (currentOperator === null) {
-				return;
+				this.state.displayValue = this.engine.formatNumber(result);
+				this.updateDisplay();
+
+				this.state.accumulator = this.engine.parseDisplay();
+				this.state.currentOperator = null;
+				this.state.originalValue = null;
+				this.state.justCalculated = true;
 			}
 
-			let result;
-			const currentValue = parseDisplay();
+			clearDisplayOnly() {
+				this.state.reset();
+				this.updateDisplay();
+			}
 
-			if (justCalculated) {
-				// Operadores foram clicados repetidamente
-				result = accumulator;
-				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(originalValue)}`;
-				addHistoryEntry(expression);
-			} else {
-				// Cálculo normal
-				if (currentValue === 0 && displayValue === '0') {
-					result = accumulator;
-				} else {
-					result = performCalculation(accumulator, currentValue, currentOperator);
+			clearAll() {
+				this.state.clearHistory();
+				this.renderHistory();
+				this.updateDisplay();
+			}
+
+			printHistory() {
+				if (this.state.historyEntries.length === 0) {
+					alert('Não há operações no histórico para imprimir.');
+					return;
 				}
-				const expression = `${formatNumber(accumulator)} ${currentOperator} ${formatNumber(currentValue)}`;
-				addHistoryEntry(expression);
-			}
 
-			displayValue = formatNumber(result);
-			totalSumPrint = displayValue
-			updateDisplay();
-
-			accumulator = parseDisplay();
-			currentOperator = null;
-			originalValue = null;
-			justCalculated = true;
-		}
-
-		function clearDisplayOnly() {
-			displayValue = '0';
-			totalSumPrint = 0
-			accumulator = null;
-			currentOperator = null;
-			originalValue = null;
-			justCalculated = false;
-			updateDisplay();
-		}
-
-		function clearAll() {
-			displayValue = '0';
-			totalSumPrint = 0
-			accumulator = null;
-			currentOperator = null;
-			originalValue = null;
-			justCalculated = false;
-			historyEntries = [];
-			totalSum = 0;
-			renderHistory();
-			updateDisplay();
-		}
-
-		function formatNumber(num) {
-			return num.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
-		}
-
-		function printHistory() {
-			if (historyEntries.length === 0) {
-				alert('Não há operações no histórico para imprimir.');
-				return;
-			}
-
-			function parseLocaleNumber(value) {
-				return parseFloat(value.replace(/\./g, '').replace(/,/g, '.')) || 0;
-			}
-
-			const rows = historyEntries.map(entry => {
-				return {
+				const rows = this.state.historyEntries.map(entry => ({
 					expression: entry.split('=')[0].trim(),
 					value: entry
-				};
-			});
+				}));
 
-			const total = totalSumPrint;
+				console.log('Preparando dados para impressão:', rows);
+				console.log('Total para impressão:', this.state.historyEntries);
 
-			const dataString = JSON.stringify({
-				products: rows.reverse(),
-				total: total
-			});
+				const dataString = JSON.stringify({
+					products: rows.reverse(),
+					total: this.engine.getTotalForPrint()
+				});
 
-			console.log(dataString);
-
-			const encoded = encodeURIComponent(dataString);
-
-			clearAll();
-			window.open(`print.html?data=${encoded}`, '_blank');
+				const encoded = encodeURIComponent(dataString);
+				this.clearAll();
+				window.open(`print.html?data=${encoded}`, '_blank');
+			}
 		}
 
-		// Inicialização
-		updateDisplay();
+		const state = new CalculatorState();
+		const engine = new CalculatorEngine(state);
+		const ui = new CalculatorUI(state, engine);
 
-		let enterClickCount = 0;
-		let enterClickTimeout = null;
+		function inputDigit(digit) { ui.inputDigit(digit); }
+		function inputDot() { ui.inputDot(); }
+		function setOperator(op) { ui.setOperator(op); }
+		function applyPercentage() { ui.applyPercentage(); }
+		function calculateResult() { ui.calculateResult(); }
+		function clearDisplayOnly() { ui.clearDisplayOnly(); }
+		function clearAll() { ui.clearAll(); }
+		function printHistory() { ui.printHistory(); }
 
-		// Teclado físico
-		document.addEventListener('keydown', function (e) {
-			if (e.key >= '0' && e.key <= '9') {
-				inputDigit(e.key);
-			} else if (e.key === ',' || e.key === '.') {
-				inputDot();
-			} else if (e.key === '+') {
-				setOperator('+');
-			} else if (e.key === '-') {
-				setOperator('-');
-			} else if (e.key === '*') {
-				setOperator('*');
-			} else if (e.key === '/') {
-				setOperator('/');
-			} else if (e.key === '%') {
-				applyPercentage();
-			} else if (e.key === 'Enter') {
-				e.preventDefault();
-				calculateResult();
-			} else if (e.key === '=' || e.key === '+') {
-				calculateResult();
-			} else if (e.key === 'c' || e.key === 'C') {
-				clearAll();
-			} else if (e.key === 'p' || e.key === 'P' || (e.key === ' ')) {
-				printHistory();
-			}
+		ui.updateDisplay();
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key >= '0' && e.key <= '9') inputDigit(e.key);
+			else if (e.key === ',' || e.key === '.') inputDot();
+			else if (['+', '-', '*', '/'].includes(e.key)) setOperator(e.key);
+			else if (e.key === '%') applyPercentage();
+			else if (e.key === 'Enter') { e.preventDefault(); calculateResult(); }
+			else if (e.key === '=' || e.key === '+') calculateResult();
+			else if (e.key === 'c' || e.key === 'C') clearAll();
+			else if (e.key === 'p' || e.key === 'P' || e.key === ' ') printHistory();
 		});
 	</script>
 </body>
