@@ -227,7 +227,6 @@
 				this.currentOperator = null;
 				this.justCalculated = false;
 				this.historyEntries = [];
-				this.MAX_HISTORY_ITEMS = 6;
 			}
 
 			reset() {
@@ -245,9 +244,6 @@
 
 			addHistoryEntry(entry) {
 				this.historyEntries.unshift(entry);
-				if (this.historyEntries.length > this.MAX_HISTORY_ITEMS) {
-					this.historyEntries.pop();
-				}
 			}
 		}
 
