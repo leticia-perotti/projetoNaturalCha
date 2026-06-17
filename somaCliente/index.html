@@ -338,7 +338,8 @@
                             inputs[idx + 1].focus();
                         } else {
                             // Atualiza o total da linha
-                            row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0);
+                            row.querySelector('.total').value = 
+                                (parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0)).toFixed(2);
                             calculateTotal();
                             addProductRow();
                             const newRow = tbody.rows[tbody.rows.length - 1];
@@ -350,7 +351,7 @@
                                     parseFloat(row.querySelector('.unitario').value || 0) *
                                     parseFloat(row.querySelector('.quantidade').value || 0);
 
-                        row.querySelector('.total').value = total;
+                        row.querySelector('.total').value = total.toFixed(2);
                         calculateTotal();
 
                         setTimeout(() => {
@@ -363,7 +364,7 @@
             // Atualiza o total ao sair do campo unitário
             const valueInput = row.querySelector('.unitario');
             valueInput.addEventListener('blur', () => {
-                row.querySelector('.total').value = parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0);
+                row.querySelector('.total').value = (parseFloat(row.querySelector('.unitario').value || 0) * parseFloat(row.querySelector('.quantidade').value || 0)).toFixed(2);
                 calculateTotal();
             });
 
