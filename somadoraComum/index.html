@@ -390,14 +390,14 @@
 
 				if (this.state.justCalculated) {
 					result = this.state.accumulator;
-					const expression = `${this.engine.formatNumber(this.state.accumulator)} ${this.state.currentOperator} ${this.engine.formatNumber(this.state.originalValue)}`;
+					const expression = `${this.state.currentOperator} ${this.engine.formatNumber(this.state.originalValue)}`;
 					this.state.addHistoryEntry(expression);
 					this.renderHistory();
 				} else {
 					result = currentValue === 0 && this.state.displayValue === '0'
 						? this.state.accumulator
 						: this.engine.performCalculation(this.state.accumulator, currentValue, this.state.currentOperator);
-					const expression = `${this.engine.formatNumber(this.state.accumulator)} ${this.state.currentOperator} ${this.engine.formatNumber(currentValue)}`;
+					const expression = `${this.state.currentOperator} ${this.engine.formatNumber(currentValue)}`;
 					this.state.addHistoryEntry(expression);
 					this.renderHistory();
 				}
@@ -438,7 +438,7 @@
 
 				const dataString = JSON.stringify({
 					products: rows.reverse(),
-					total: this.engine.getTotalForPrint()
+					total: this.state.accumulator
 				});
 
 				const encoded = encodeURIComponent(dataString);
